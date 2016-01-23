@@ -1,7 +1,6 @@
 package main
 
 import(
-	"fmt"
 	"../connector"
 	"strconv"
 )
@@ -92,8 +91,9 @@ func CreateTable(table_name string, columns []ColumnBuilder){
 	connector.Query(query)
 }
 
-func RemoveColumn(table,column){
-
+func RemoveColumn(table,column string){
+	query := "ALTER TABLE "+table+" DROP COLUMN "+ column
+	connector.Query(query)
 }
 
 

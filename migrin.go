@@ -27,7 +27,7 @@ func (this Migrin) new() {
 		t := time.Now()
 		timestamp := t.Format("20060102150405")
 		this.create_file(timestamp,*option)
-	}	
+	}
 }
 
 func existFolder(folderName string) bool {
@@ -49,6 +49,10 @@ func (this Migrin) create_file(timestamp,filename string) {
 	}
 	w := bufio.NewWriter(f)
 	_,err = w.WriteString("package main \n\n import(\n\t 'fmt' \n)\n\n func main(){}")
+<<<<<<< HEAD
+=======
+
+>>>>>>> c890b96c9c1130f41264b076f6c6fbd29a85fb6c
 	if err != nil{
 		log.Fatal(err)
 	}
@@ -69,7 +73,7 @@ func (this Migrin) init(){
     	log.Fatal(err)
     }
     file, _ :=  os.Create(localPathFile)
-    file.WriteString("path:\nusername:\npassword:\nport:\n")
+    file.WriteString("path:\nusername:\npassword:\nport:\ndatabase:\n")
   }
 }
 

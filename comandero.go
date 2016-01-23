@@ -7,8 +7,18 @@ import(
 const initFolderName = "./Init"
 const initFileName = "./Init/confing.xaml"
 
+
 func helper(){
   fmt.Println("Aqui ira el archvio helper")
+}
+
+func contains(s []string, e string) bool {
+    for _, a := range s {
+        if a == e {
+            return true
+        }
+    }
+    return false
 }
 
 func existFolder(folderName string) bool {
@@ -17,10 +27,8 @@ func existFolder(folderName string) bool {
 }
 
 func validateCommand(command string)bool  {
-  if command != "Init"{ //Se deben de validar por una lista de palabras no por if
-    return false
-  }
-  return true
+  listCommands := []string {"Init", "init"}
+  return contains( listCommands , command)
 }
 
 func createInitFolder(){
@@ -30,7 +38,7 @@ func createInitFolder(){
   if !existFolder(folder){
     os.Mkdir(folder,0777)
     file, _ :=  os.Create(localPathFile)
-    file.WriteString("test\nhello")
+    file.WriteString("path:\nusername:\npassword:\nport:\n")
   }
 }
 
@@ -49,6 +57,7 @@ func main(){
   if validateCommand(command){
     initFunction()
   }else{
+    fmt.Println("Lalo")
     helper()
   }
 }

@@ -3,10 +3,15 @@ package main
 import(
   "os"
   "fmt"
+  "gopkg.in/alecthomas/kingpin.v2"
 )
+var (
+	action = kingpin.Arg("action","Init").Required().String()
+)
+
+
 const initFolderName = "./Init"
 const initFileName = "./Init/confing.xaml"
-
 
 func helper(){
   fmt.Println("Aqui ira el archvio helper")
@@ -47,17 +52,11 @@ func initFunction(){
 }
 
 func main(){
-  if len(os.Args) != 2 {
-    helper()
-    os.Exit(1)
-  }
-  var command string
-  command = os.Args[1]
-
-  if validateCommand(command){
+  kingpin.Parse()
+	switch *action{
+  case "Init":
     initFunction()
-  }else{
-    fmt.Println("Lalo")
-    helper()
-  }
+  case "init":
+			initFunction()
+	}
 }

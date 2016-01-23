@@ -22,6 +22,7 @@ func Run(){
 	if rows.Next(){
 		fmt.Println("Hola DB")
 	}else{
+		fmt.Println("Creating DB")
 		_,err = db.Exec("CREATE TABLE migrations(id int NOT NULL AUTO_INCREMENT PRIMARY KEY,migration_id varchar(11) NOT NULL,status int DEFAULT 0)")
 	}
 }

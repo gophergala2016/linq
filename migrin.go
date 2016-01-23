@@ -7,6 +7,7 @@ import(
 	"os"
 	"log"
 	"bufio"
+	"./connector"
 )
 
 var (
@@ -30,7 +31,7 @@ func (this Migrin) new() {
 }
 
 func (this Migrin) create_file(timestamp,filename string) {
-	go this.create_migrations_table()
+	this.create_migrations_table() // Run concurrently
 	f,err := os.Create(timestamp+"_"+filename+".go")
 	if err != nil{
 		log.Fatal(err)
@@ -48,7 +49,7 @@ func (this Migrin) create_file(timestamp,filename string) {
 }
 
 func (this Migrin) create_migrations_table() {
-	
+	connector.Run()
 }
 
 func main() {

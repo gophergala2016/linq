@@ -8,7 +8,6 @@ import(
 	"strings"
 	"os"
 )
-
 import _ "github.com/go-sql-driver/mysql"
 const pathConfig = "database/config.yml"
 var (
@@ -25,14 +24,12 @@ func Run(){
 	if(err != nil){
 		log.Fatal(err)
 	}
-
 	rows,err := db.Query("SHOW TABLES LIKE 'migrations'")
 	if(err != nil){
 		log.Fatal(err)
 	}
-	if rows.Next(){
-		fmt.Println("Hola DB")
-	}else{
+
+	if !rows.Next(){
 		_,err = db.Exec("CREATE TABLE migrations(id int NOT NULL AUTO_INCREMENT PRIMARY KEY,migration_id varchar(11) NOT NULL,status int DEFAULT 0)")
 	}
 }

@@ -14,6 +14,9 @@ var (
 	action = kingpin.Arg("action","Specify an action to run init/new/up/down").Required().String()
 	option = kingpin.Arg("modifier","Adds extra information to the command, specifies the migration name on new command").String()
 )
+const initFolderName = "./database/"
+const initFileName = "./database/config.yml"
+const initFolderNameMigration = "./database/migrations"
 
 type Migrin struct{
 
@@ -35,9 +38,8 @@ func existFolder(folderName string) bool {
     return !os.IsNotExist(err)
 }
 
-
 func (this Migrin) create_file(timestamp,filename string) {
-	folder := initFolderName+"/migrations"
+	folder := initFolderNameMigration
 	if !existFolder(folder){
     os.Mkdir(folder,0777)
  	}
@@ -59,7 +61,7 @@ func (this Migrin) create_file(timestamp,filename string) {
 }
 
 func (this Migrin) init(){
-  folder := initFolderName //Refactor en caso de verse lento
+  folder := initFolderName //Obtencion de variables globales para realizar  la operación más rápido
   localPathFile :=  initFileName
 
   if !existFolder(folder){
@@ -75,10 +77,6 @@ func (this Migrin) init(){
 func (this Migrin) create_migrations_table() {
 	connector.Run()
 }
-
-const initFolderName = "./database/"
-const initFileName = "./database/config.yml"
-
 func main() {
 	kingpin.Parse()
 	m := Migrin{}

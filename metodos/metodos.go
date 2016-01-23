@@ -3,6 +3,7 @@ package main
 import(
 	"../connector"
 	"strconv"
+	"fmt"
 )
 
 func get_default_length(data_type string) int{
@@ -22,10 +23,11 @@ type ColumnBuilder struct{
 	index bool
 	auto_increment bool
 	default_value string
+	new_name string
 }
 
 func (this ColumnBuilder) creation_string() string{
-	return this.name+this.data_type_get()+this.null_get()+this.primary_key_get()+this.default_value_get()+this.auto_increment_get()
+	return this.name+this.new_name_get()+this.data_type_get()+this.null_get()+this.primary_key_get()+this.default_value_get()+this.auto_increment_get()
 }
 
 func (this ColumnBuilder) null_get() string{
@@ -73,10 +75,8 @@ func (this ColumnBuilder) auto_increment_get() string{
 	}
 	return ""
 }
-
-func main() {
-	columns := []ColumnBuilder{{name:"name",null:true},{name:"email",data_type:"varchar"}}
-	CreateTable("audits",columns)
+func (this ColumnBuilder) new_name_get() string{
+	return " "+this.new_name+" "
 }
 
 func CreateTable(table_name string, columns []ColumnBuilder){
@@ -95,6 +95,39 @@ func RemoveColumn(table,column string){
 	query := "ALTER TABLE "+table+" DROP COLUMN "+ column
 	connector.Query(query)
 }
+
+func ChangeColumn(table string,column ColumnBuilder){
+	var modifier string
+	if column.new_name != ""{
+		modifier = "CHANGE"
+	}else{
+		modifier = "MODIFY"
+	}
+	query := "ALTER TABLE "+table+" "+ modifier +" "+ column.creation_string()
+	
+	connector.Query(query)
+}
+
+func AddIndex(table,index_name,column string) {
+	query := "CREATE INDEX "+index_name+" ON "+ table + "("+column+")"
+	connector.Query(query)
+}
+
+func RemoveIndex(table,index_name string){
+	query := "DROP INDEX "+index_name+" ON "+ table
+	fmt.Println(query)
+	connector.Query(query)	
+}
+
+
+func main() {
+	//columns := []ColumnBuilder{{name:"name",null:true},{name:"email",data_type:"varchar"}}
+	RemoveIndex("audits","name_index")
+}
+
+
+
+
 
 
 

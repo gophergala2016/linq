@@ -21,7 +21,6 @@ var (
 
 func Run(){
 	Initialize()
-	//db,err := sql.Open("mysql","root:@/spam_db")
 	db,err := sql.Open(connector,format)
 	if(err != nil){
 		log.Fatal(err)
@@ -57,23 +56,20 @@ func setValuesConfig(){
 		line := scanner.Text()
 		splitLine := strings.Split(line, ":")
 
-		if(splitLine[0] == "username"){
+		switch splitLine[0]{
+			case "username":
 				username = splitLine[1]
-		}
-
-		elif(splitLine[0] == "password"){
+			case "password":
 				password = splitLine[1]
-		}
-		elif(splitLine[0] == "database"){
+			case "database":
 				database = splitLine[1]
 		}
 	}
-	format := getFormat(username, password, database)
+	format = getFormat(username, password, database)
 
 	if err := scanner.Err(); err != nil {
 		log.Fatal(scanner.Err())
 	}
-
 }
 
 func getFormat(username string, password string, database string)string{

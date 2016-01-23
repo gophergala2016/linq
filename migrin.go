@@ -71,9 +71,10 @@ func (this Migrin) init(){
     if err != nil{
     	log.Fatal(err)
     }
-    file, _ :=  os.Create(localPathFile)
-    file.WriteString("path:\nusername:\npassword:\nport:\ndatabase:\n")
   }
+
+	file, _ :=  os.Create(localPathFile)
+	file.WriteString("path:\nusername:\npassword:\nport:\ndatabase:\n")
 }
 
 func (this Migrin) save_migration_in_db(timestamp string){

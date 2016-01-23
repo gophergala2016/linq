@@ -43,19 +43,20 @@ func (this Migrin) create_file(timestamp,filename string) {
  	}
 	this.create_migrations_table() // Run concurrently
 	f,err := os.Create(folder+"/"+timestamp+"_"+filename+".go")
+	defer f.Close()
 	if err != nil{
 		log.Fatal(err)
 	}
 	w := bufio.NewWriter(f)
-
 	_,err = w.WriteString("package main \n\n import(\n\t 'fmt' \n)\n\n func main(){}")
-	
 	if err != nil{
 		log.Fatal(err)
 	}
 
 	f.Sync()
 	w.Flush()
+
+	this.save_migration_in_db(timestamp)
 }
 
 func (this Migrin) init(){
@@ -70,6 +71,10 @@ func (this Migrin) init(){
     file, _ :=  os.Create(localPathFile)
     file.WriteString("path:\nusername:\npassword:\nport:\n")
   }
+}
+
+func (this Migrin) save_migration_in_db(timestamp string){
+	connector.InsertMigration(timestamp)
 }
 
 func (this Migrin) create_migrations_table() {

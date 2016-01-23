@@ -32,7 +32,7 @@ func (this Migrin) new() {
 
 func (this Migrin) create_file(timestamp,filename string) {
 	this.create_migrations_table() // Run concurrently
-	f,err := os.Create(timestamp+"_"+filename+".go")
+	f,err := os.Create("./migrations/"+timestamp+"_"+filename+".go")
 	if err != nil{
 		log.Fatal(err)
 	}

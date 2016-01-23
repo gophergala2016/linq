@@ -46,7 +46,7 @@ func (this ColumnBuilder) primary_key_get() string{
 func (this ColumnBuilder) data_type_get() string{
 	if this.data_type != "" && this.data_type != "varchar"{
 		return " "+this.data_type
-	}else if(this.data_type == "varchar"){
+	}else if(this.data_type == "varchar" || this.data_type == "nvarchar"){
 		return " "+this.data_type+"("+this.length_get()+")"
 	}
 	return " varchar("+this.length_get()+") "

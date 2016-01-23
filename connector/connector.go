@@ -6,11 +6,20 @@ import(
 	"fmt"
 )
 
-import _ "github.com/go-sql-driver/mysql"
+var (
+	manage string
+	username string
+	password string
+	datebase string
+	openSql string
+)
 
+import "github.com/go-sql-driver/mysql"
 
 func Run(){
-	db,err := sql.Open("mysql","root:@/spam_db")
+	//db,err := sql.Open("mysql","root:@/spam_db")
+	db,err := sql.Open("mysql","root:xxpesar1020@/spam_db")
+
 	if(err != nil){
 		log.Fatal(err)
 	}

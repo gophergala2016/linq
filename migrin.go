@@ -30,9 +30,19 @@ func (this Migrin) new() {
 	}	
 }
 
+func existFolder(folderName string) bool {
+    _, err := os.Stat(folderName)
+    return !os.IsNotExist(err)
+}
+
+
 func (this Migrin) create_file(timestamp,filename string) {
+	folder := initFolderName+"/migrations"
+	if !existFolder(folder){
+    os.Mkdir(folder,0777)
+ 	}
 	this.create_migrations_table() // Run concurrently
-	f,err := os.Create("./migrations/"+timestamp+"_"+filename+".go")
+	f,err := os.Create(folder+"/"+timestamp+"_"+filename+".go")
 	if err != nil{
 		log.Fatal(err)
 	}
@@ -48,9 +58,26 @@ func (this Migrin) create_file(timestamp,filename string) {
 	w.Flush()
 }
 
+func (this Migrin) init(){
+  folder := initFolderName //Refactor en caso de verse lento
+  localPathFile :=  initFileName
+
+  if !existFolder(folder){
+    err := os.Mkdir(folder,0777)
+    if err != nil{
+    	log.Fatal(err)
+    }
+    file, _ :=  os.Create(localPathFile)
+    file.WriteString("path:\nusername:\npassword:\nport:\n")
+  }
+}
+
 func (this Migrin) create_migrations_table() {
 	connector.Run()
 }
+
+const initFolderName = "./database/"
+const initFileName = "./database/config.yml"
 
 func main() {
 	kingpin.Parse()
@@ -58,5 +85,7 @@ func main() {
 	switch *action{
 		case "new":
 			m.new()
+		case "init":
+			m.init()
 	}
 }

@@ -18,7 +18,7 @@ This gives you access to the migrin command to execute different actions
 	```
 		migrin init
 	```
-3.- Modify database/config.yml with the credentials for your database
+3. Modify database/config.yml with the credentials for your database
 4. Create your first migration
 	```
 		migrin new <MigrationName>

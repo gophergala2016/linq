@@ -66,7 +66,7 @@ func GetQuery(query string) *sql.Rows{
 	rows,err := db.Query(query)
 	if err != nil{
 		log.Fatal(err)
-	}	
+	}
 	return rows
 }
 

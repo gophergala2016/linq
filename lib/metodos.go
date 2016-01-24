@@ -32,6 +32,10 @@ type ColumnBuilder struct{
 	ForeignKey string
 }
 
+func (this ColumnBuilder) Go_code_string() string{
+	return "{Name:\""+this.Name+"\",Data_type:\""+this.Data_type+"\"}"
+}
+
 func (this ColumnBuilder) creation_string() string{
 	return this.Name+this.new_name_get()+this.data_type_get()+this.null_get()+this.primary_key_get()+this.default_value_get()+this.auto_increment_get()
 }

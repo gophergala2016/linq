@@ -9,15 +9,50 @@ import(
 	"log"
 	"bufio"
 	"../connector"
+	"../lib"
 	"io/ioutil"
 	"strings"
 	"bytes"
 )
 
+type columns []lib.ColumnBuilder
+
+func (this *columns) Set(value string) error{
+	if value == ""{
+		return fmt.Errorf("'%s' is not a valid column name", value)
+	}else{
+		components := strings.Split(value,":")
+		c_b := lib.ColumnBuilder{Name: components[0]}
+		if len(components) > 1{
+			c_b.Data_type = components[1]
+		}
+		*this = append(*this,c_b)
+		return nil
+	}
+	
+}
+
+func (this *columns) String() string{
+	return ""
+}
+
+func (this *columns) IsCumulative() bool {
+  return true
+}
+
+func ColumnList(s kingpin.Settings) (target *[]lib.ColumnBuilder) {
+  target = new([]lib.ColumnBuilder)
+  s.SetValue((*columns)(target))
+  return
+}
+
+
+
 var (
 	action = kingpin.Arg("action","Specify an action to run init/new/up/down").Required().String()
 	option = kingpin.Arg("modifier","Adds extra information to the command, specifies the migration name on new command").String()
 	p = kingpin.Flag("production","Runs command queries on production ").Short('p').Bool()
+	column_args = ColumnList(kingpin.Arg("columns","N number of columns to add to your migration"))
 )
 const initFolderName = "./database/"
 const initFileName = "./database/config.yml"
@@ -140,6 +175,17 @@ func create_file_migration(file_path string){
 	w := bufio.NewWriter(f)
 	imports := "\n\t\"../../lib\"\n\t \"os\"\n"
 	main_body := "\n\t//Write here your migration sentences. Next line is necessary for configuration\n\tlib.Options(os.Args)\n"
+	if len(*column_args) > 0{
+		main_body += "\n\tcolumns := []lib.ColumnBuilder{"
+		for i,column := range *column_args{
+			main_body += column.Go_code_string()
+			if i < (len(*column_args)-1){
+				main_body += ","
+			}
+		}
+		main_body += "}\n"
+	}
+	
 	_,err = w.WriteString("package main \n\nimport("+imports+")\n\nfunc main(){"+main_body+"}")
 	if err != nil{
 		log.Fatal(err)

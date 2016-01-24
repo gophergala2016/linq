@@ -75,12 +75,11 @@ func (this ColumnBuilder) auto_increment_get() string{
 	}
 	return ""
 }
-<<<<<<< HEAD
-=======
+
 func (this ColumnBuilder) new_name_get() string{
 	return " "+this.new_name+" "
 }
->>>>>>> 7abac5686641a45199c5674b6225e593472a8bd6
+
 
 func CreateTable(table_name string, columns []ColumnBuilder){
 	query := "CREATE TABLE "+table_name+"("

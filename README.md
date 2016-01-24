@@ -6,7 +6,7 @@ A migration toolkit writted in Golang and inspired on Rails' ActiveRecord::Migra
 
 Execute the following go get command to install the toolkit from the github repository
 ```
-go get github.com/gophergala2016/linq
+go get github.com/gophergala2016/linq/migrin
 ```
 
 This gives you access to the migrin command to execute different actions
@@ -68,14 +68,14 @@ Migrin will generate the following migration:
 package main 
 
 import(
-	"../../lib"
+	"github.com/gophergala2016/linq/migrator"
 	 "os"
 )
 
 func main(){
-	lib.Options(os.Args)
-	columns = []lib.ColumnBuilder{{Name:"email",Data_type:"varchar"},{Name:"password",Data_type:"varchar"},{Name:"age",Data_type:"int"}
-	lib.CreateTable("users",columns)
+	migrator.Options(os.Args)
+	columns = []migrator.ColumnBuilder{{Name:"email",Data_type:"varchar"},{Name:"password",Data_type:"varchar"},{Name:"age",Data_type:"int"}
+	migrator.CreateTable("users",columns)
 }
 ```
 
@@ -106,10 +106,11 @@ Example
 ```go
 package main 
 import(
-	"github.com/gophergala2016/linq/lib"
+	"github.com/gophergala2016/linq/migrator"
 )
 func main(){
-	lib.CreateTable("courses",[]lib.ColumnBuilder{{Name:"title"},{Name:"description"}})	
+	migrator.Options(os.Args)
+	migrator.CreateTable("courses",[]migrator.ColumnBuilder{{Name:"title"},{Name:"description"}})	
 }
 ```
 
@@ -121,10 +122,11 @@ Example
 ```go
 package main 
 import(
-	"github.com/gophergala2016/linq/lib"
+	"github.com/gophergala2016/linq/migrator"
 )
 func main(){
-	lib.DropTable("courses")	
+	migrator.Options(os.Args)
+	migrator.DropTable("courses")	
 }
 ```
 
@@ -136,10 +138,11 @@ Example
 ```go
 package main 
 import(
-	"github.com/gophergala2016/linq/lib"
+	"github.com/gophergala2016/linq/migrator"
 )
 func main(){
-	lib.AddColumn("courses",ColumnBuilder{Name:'status',Data_type:'int'})	
+	migrator.Options(os.Args)
+	migrator.AddColumn("courses",ColumnBuilder{Name:'status',Data_type:'int'})	
 }
 ```
 
@@ -151,10 +154,11 @@ Example
 ```go
 package main 
 import(
-	"github.com/gophergala2016/linq/lib"
+	"github.com/gophergala2016/linq/migrator"
 )
 func main(){
-	lib.RemoveColumn("courses","status")	
+	migrator.Options(os.Args)
+	migrator.RemoveColumn("courses","status")	
 }
 ```
 
@@ -166,11 +170,12 @@ Example
 ```go
 package main 
 import(
-	"github.com/gophergala2016/linq/lib"
+	"github.com/gophergala2016/linq/migrator"
 )
 func main(){
+	migrator.Options(os.Args)
 	//Changes the column name status to state
-	lib.ChangeColumn("courses",ColumnBuilder{Name:"status",New_name:"state"})	
+	migrator.ChangeColumn("courses",migrator.ColumnBuilder{Name:"status",New_name:"state"})	
 }
 ```
 
@@ -182,10 +187,11 @@ Example
 ```go
 package main 
 import(
-	"github.com/gophergala2016/linq/lib"
+	"github.com/gophergala2016/linq/migrator"
 )
 func main(){
-	lib.AddIndex("courses","status_index","status")	
+	migrator.Options(os.Args)
+	migrator.AddIndex("courses","status_index","status")	
 }
 ```
 
@@ -197,10 +203,11 @@ Example
 ```go
 package main 
 import(
-	"github.com/gophergala2016/linq/lib"
+	"github.com/gophergala2016/linq/migrator"
 )
 func main(){
-	lib.RemoveIndex("courses","status_index")	
+	migrator.Options(os.Args)
+	migrator.RemoveIndex("courses","status_index")	
 }
 ```
 
@@ -212,10 +219,11 @@ Example
 ```go
 package main 
 import(
-	"github.com/gophergala2016/linq/lib"
+	"github.com/gophergala2016/linq/migrator"
 )
 func main(){
-	lib.AddForeignKey(ColumnBuilder{Name:"id",Table:"courses"},ColumnBuilder{Name:"course_id",Table:"videos"})	
+	migrator.Options(os.Args)
+	migrator.AddForeignKey(migrator.ColumnBuilder{Name:"id",Table:"courses"},ColumnBuilder{Name:"course_id",Table:"videos"})	
 }
 ```
 
@@ -227,10 +235,11 @@ Example
 ```go
 package main 
 import(
-	"github.com/gophergala2016/linq/lib"
+	"github.com/gophergala2016/linq/migrator"
 )
 func main(){
-	lib.RemoveForeignKey(ColumnBuilder{ForeignKey:"foreign_key"})	
+	migrator.Options(os.Args)
+	migrator.RemoveForeignKey(migrator.ColumnBuilder{ForeignKey:"foreign_key"})	
 }
 ```
 

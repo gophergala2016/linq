@@ -197,6 +197,10 @@ Table string
 ForeignKey string
 ```
 
+##GopherGala 2016
+
+Created for the GopherGala2016 hackathon.
+
 ## RoadMap
 
 * Add other drives (for now it only supports mySQL)

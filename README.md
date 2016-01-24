@@ -197,6 +197,12 @@ Table string
 ForeignKey string
 ```
 
+## RoadMap
+
+* Add other drives (for now it only supports mySQL)
+* Generate complete migrations (including methods) using the command line as seen in Rails ActiveRecord::Migration
+* Use Go concurrency efficiency for better performance
+
 ## Contribuitors
 
 * [Eduardo](https://github.com/eduardo78d)

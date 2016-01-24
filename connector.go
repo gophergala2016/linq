@@ -1,4 +1,4 @@
-package migrin
+package migrin // import "github.com/gophergala2016/linq/"
 
 import(
 	"database/sql"

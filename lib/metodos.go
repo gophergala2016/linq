@@ -1,4 +1,4 @@
-package migrin
+package lib
 
 import(
 	"github.com/gophergala2016/linq/"

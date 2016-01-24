@@ -8,9 +8,10 @@ import(
 	"os/exec"
 	"log"
 	"bufio"
-	"github.com/gophergala2016/linq/connector"
+	"../connector"
 	"io/ioutil"
 	"strings"
+	"bytes"
 )
 
 var (
@@ -53,7 +54,7 @@ func (this Migrin) create_file(timestamp,filename string) {
 		log.Fatal(err)
 	}
 	w := bufio.NewWriter(f)
-	_,err = w.WriteString("package main \n\n import(\n\t 'fmt' \n)\n\n func main(){}")
+	_,err = w.WriteString("package main \n\nimport(\n\t 'github.com/gophergala2016/linq/lib' \n)\n\nfunc main(){}")
 
 	if err != nil{
 		log.Fatal(err)
@@ -89,11 +90,14 @@ func (this Migrin) create_migrations_table() {
 }
 
 func (this Migrin) up() {
-	rows := connector.GetQuery("SELECT * FROM migrations WHERE status = 0")
-	for rows.next {
+	rows := connector.GetQuery("SELECT id,migration_id FROM migrations WHERE status = 0")
+	for rows.Next(){
 		var id int
 		var timestamp string 
 		err := rows.Scan(&id,&timestamp)
+		if err != nil{
+			log.Fatal(err)
+		}
 		execute_migration(timestamp)
 	}
 }
@@ -103,19 +107,27 @@ func (this Migrin) down() {
 }
 
 func execute_migration(timestamp string){
+	fmt.Println(timestamp)
 	file := find_file(timestamp)
 	if file != nil{
-		out,err := exec.Command("go run /database/migrations/"+file.Name()).Output()
-		if err != nil{
-			log.Fatal(err)
+		cmd := exec.Command("go", "run","./database/migrations/"+file.Name())
+		var out bytes.Buffer
+		var stderr bytes.Buffer
+		cmd.Stdout = &out
+		cmd.Stderr = &stderr
+		err := cmd.Run()
+		if err != nil {
+		    fmt.Println(fmt.Sprint(err) + ": " + stderr.String())
+		    return
+		}else{
+			fmt.Println("Migration "+timestamp+" was executed")
 		}
 	}
 }
 
 func find_file(timestamp string) os.FileInfo{
-	files, _ := ioutil.ReadDir("./")
+	files, _ := ioutil.ReadDir("./database/migrations")
   for _, f := range files {
-		fmt.Println(f.Name())
 		if strings.Contains(f.Name(),timestamp) {
 			return f
 		}

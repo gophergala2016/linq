@@ -61,9 +61,9 @@ func Query(query string){
 	}
 }
 
-func GetQuery(query string) string{
+func GetQuery(query string) *sql.Rows{
 	db := connect_db()
-	rows,err := db.Exec(query)
+	rows,err := db.Query(query)
 	if err != nil{
 		log.Fatal(err)
 	}	

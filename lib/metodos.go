@@ -115,7 +115,7 @@ func AddColum(table string, this ColumnBuilder){
 	query := "ALTER TABLE "+table+" ADD COLUMN "+ this.name + " " + this.data_type + ""
 	if(contains(acceptValues, this.data_type)){
 		if(this.length <= 0){
-			 this.length = 255cn
+			 this.length = 255
 		}
 		query += "(" + 	strconv.Itoa(this.length)  + ")"
 	}

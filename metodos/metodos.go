@@ -2,7 +2,7 @@
 package main
 
 import(
-
+	"github.com/gophergala2016/linq/connector"
 	"strconv"
 	"fmt"
 	"../connector"

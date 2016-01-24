@@ -1,4 +1,5 @@
-package lib
+//package lib
+package main
 
 import(
 	"github.com/gophergala2016/linq/connector"
@@ -82,7 +83,6 @@ func (this ColumnBuilder) new_name_get() string{
 	return " "+this.new_name+" "
 }
 
-
 func CreateTable(table_name string, columns []ColumnBuilder){
 	query := "CREATE TABLE "+table_name+"("
 	for index,column := range columns{
@@ -92,6 +92,7 @@ func CreateTable(table_name string, columns []ColumnBuilder){
 		}
 	}
 	query +=")"
+	fmt.Println("el query es ", query)
 	connector.Query(query)
 }
 
@@ -136,20 +137,17 @@ func RemoveIndex(table,index_name string){
 }
 
 func main() {
-	//columnsComida := []ColumnBuilder{ {name:"nombre",null:true},{name:"precio",data_type:"INT", null:true} }
-	//columnsRestaurantes := []ColumnBuilder{ {name:"nombre",null:true},{name:"lugar",data_type:"nvarchar", null:true}}
-	//CreateTable("comida", columnsComida)
-	//CreateTable("restaurantes", columnsRestaurantes)
+
 }
 
 func AddForeignKey(col1 ColumnBuilder, col2 ColumnBuilder ){
-	query := "ALTER " + col1.table + "ADD FOREIGN KEY (" + col1.foreignKey + ")"
-	query += "RERERENCES " + col2.table +  "(" +  col2.foreignKey  + ")"
+	query := "ALTER TABLE " + col1.table + " ADD FOREIGN KEY (" + col1.foreignKey + ") "
+	query += "REFERENCES " + col2.table +  "(" +  col2.foreignKey  + ")"
 	connector.Query(query)
 }
 
 func RemoveForeigKey(this ColumnBuilder){
-	query := "ALTER TABLE" + this.name + "DROP FOREIGN KEY"  + this.foreignKey
+	query := "ALTER TABLE " + this.table + " DROP FOREIGN KEY "  + this.foreignKey
 	connector.Query(query)
 }
 

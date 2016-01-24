@@ -42,12 +42,12 @@ func Run(){
 	}
 
 	if !rows.Next(){
-		_,err = db.Exec("CREATE TABLE migrations(id int NOT NULL AUTO_INCREMENT PRIMARY KEY,migration_id varchar(11) NOT NULL,status int DEFAULT 0)")
+		_,err = db.Exec("CREATE TABLE migrations(id int NOT NULL AUTO_INCREMENT PRIMARY KEY,migration_id varchar(20) NOT NULL,status int DEFAULT 0)")
 	}
 }
 func InsertMigration(timestamp string){
 	db := connect_db()
-	_,err := db.Exec("INSERT INTO "+table_name+" (migration_id) VALUES("+timestamp+") ")
+	_,err := db.Exec("INSERT INTO "+table_name+" (migration_id) VALUES('"+timestamp+"')" )
 	if err != nil{
 		log.Fatal(err)
 	}

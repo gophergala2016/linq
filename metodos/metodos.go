@@ -3,6 +3,7 @@ package main
 import(
 	"../connector"
 	"strconv"
+	"fmt"
 )
 
 func get_default_length(data_type string) int{
@@ -22,10 +23,11 @@ type ColumnBuilder struct{
 	index bool
 	auto_increment bool
 	default_value string
+	new_name string
 }
 
 func (this ColumnBuilder) creation_string() string{
-	return this.name+this.data_type_get()+this.null_get()+this.primary_key_get()+this.default_value_get()+this.auto_increment_get()
+	return this.name+this.new_name_get()+this.data_type_get()+this.null_get()+this.primary_key_get()+this.default_value_get()+this.auto_increment_get()
 }
 
 func (this ColumnBuilder) null_get() string{
@@ -73,6 +75,12 @@ func (this ColumnBuilder) auto_increment_get() string{
 	}
 	return ""
 }
+<<<<<<< HEAD
+=======
+func (this ColumnBuilder) new_name_get() string{
+	return " "+this.new_name+" "
+}
+>>>>>>> 7abac5686641a45199c5674b6225e593472a8bd6
 
 func CreateTable(table_name string, columns []ColumnBuilder){
 	query := "CREATE TABLE "+table_name+"("
@@ -91,6 +99,7 @@ func RemoveColumn(table,column string){
 	connector.Query(query)
 }
 
+
 func AddColum(table string, this ColumnBuilder){
 	acceptValues := []string {"nvarchar","varchar"}
 	query := "ALTER TABLE "+table+" ADD COLUMN "+ this.name + " " + this.data_type + ""
@@ -101,6 +110,35 @@ func AddColum(table string, this ColumnBuilder){
 		query += "(" + 	strconv.Itoa(this.length)  + ")"
 	}
 	connector.Query(query)
+}
+
+func ChangeColumn(table string,column ColumnBuilder){
+	var modifier string
+	if column.new_name != ""{
+		modifier = "CHANGE"
+	}else{
+		modifier = "MODIFY"
+	}
+	query := "ALTER TABLE "+table+" "+ modifier +" "+ column.creation_string()
+
+	connector.Query(query)
+}
+
+func AddIndex(table,index_name,column string) {
+	query := "CREATE INDEX "+index_name+" ON "+ table + "("+column+")"
+	connector.Query(query)
+}
+
+func RemoveIndex(table,index_name string){
+	query := "DROP INDEX "+index_name+" ON "+ table
+	fmt.Println(query)
+	connector.Query(query)
+}
+
+
+func main() {
+	//columns := []ColumnBuilder{{name:"name",null:true},{name:"email",data_type:"varchar"}}
+	RemoveIndex("audits","name_index")
 }
 
 func DropTable(table string){
@@ -116,12 +154,4 @@ func contains(s []string, e string) bool {
         }
     }
     return false
-}
-
-func main() {
-	columns := []ColumnBuilder{{name:"name",null:true},{name:"email",data_type:"varchar"}}
-	CreateTable("audits",columns)
-	//columnAge := ColumnBuilder {name : "go", data_type: "NVARCHAR", length:45}
-	//AddColum("audits", columnAge)
-	//DropTable("audits")
 }

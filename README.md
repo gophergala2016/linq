@@ -18,15 +18,16 @@ This gives you access to the migrin command to execute different actions
 	```
 		migrin init
 	```
-3. Create your first migration
+3.- Modify database/config.yml with the credentials for your database
+4. Create your first migration
 	```
 		migrin new <MigrationName>
 	```
-4. Execute your migration
+5. Execute your migration
 	```
 		migrate up
 	```
-5. In case something went wrong, you can reverse your migrations
+6. In case something went wrong, you can reverse your migrations
 	```
 		migrate down
 	```
@@ -36,6 +37,7 @@ This gives you access to the migrin command to execute different actions
 The beauty of migrin is that you don't need to write SQL to define what your migration should do, you use a simple API to modify your database
 
 ###CreateTable(table_name,[]ColumnBuilder)
+Creates a new table with the specified name (1st argument) and the specified columns, defined by an slice of ColumnBuilder's
 
 Example
 ```go
@@ -45,6 +47,21 @@ Example
 	)
 	func main(){
 		lib.CreateTable("courses",[]lib.ColumnBuilder{{Name:"title"},{Name:"description"}})	
+	}
+```
+
+###DropTable(table_name)
+
+Drops the specified table from the database
+
+Example
+```go
+	package main 
+	import(
+		"github.com/gophergala2016/linq/lib"
+	)
+	func main(){
+		lib.DropTable("courses"})	
 	}
 ```
 

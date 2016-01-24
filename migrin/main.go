@@ -29,7 +29,7 @@ func (this *columns) Set(value string) error{
 		*this = append(*this,c_b)
 		return nil
 	}
-	
+
 }
 
 func (this *columns) String() string{
@@ -51,6 +51,8 @@ func ColumnList(s kingpin.Settings) (target *[]lib.ColumnBuilder) {
 var (
 	action = kingpin.Arg("action","Specify an action to run init/new/up/down").Required().String()
 	option = kingpin.Arg("modifier","Adds extra information to the command, specifies the migration name on new command").String()
+	method = kingpin.Arg("method", "method").String()
+	table = kingpin.Arg("table","method").String()
 	p = kingpin.Flag("production","Runs command queries on production ").Short('p').Bool()
 	column_args = ColumnList(kingpin.Arg("columns","N number of columns to add to your migration"))
 )
@@ -87,7 +89,7 @@ func (this Migrin) create_file(timestamp,filename string) {
     os.Mkdir(folder,0777)
  	}
 	create_file_migration(folder+"/"+timestamp+"_"+filename+".go")
-	
+
 }
 
 func (this Migrin) create_down_file(timestamp,filename string) {
@@ -124,9 +126,9 @@ func (this Migrin) create_migrations_table() {
 	waiting_channel := make(chan bool)
 	go func(){
 		connector.Run()
-		waiting_channel <- true	
+		waiting_channel <- true
 	}()
-	b := <-waiting_channel	
+	b := <-waiting_channel
 	if !b{
 		fmt.Println("Error creating migrations table")
 	}
@@ -167,16 +169,23 @@ func migration_executed(timestamp string) bool{
 }
 
 func create_file_migration(file_path string){
+	customeTable := *table
+	customeMethod := *method
+
 	f,err := os.Create(file_path)
 	defer f.Close()
 	if err != nil{
 		log.Fatal(err)
 	}
+
+	option := GetOption(customeMethod)
+
+	columnBuilderName := "column"
 	w := bufio.NewWriter(f)
 	imports := "\n\t\"../../lib\"\n\t \"os\"\n"
 	main_body := "\n\t//Write here your migration sentences. Next line is necessary for configuration\n\tlib.Options(os.Args)\n"
 	if len(*column_args) > 0{
-		main_body += "\n\tcolumns := []lib.ColumnBuilder{"
+		main_body += "\n\t" + columnBuilderName +":= []lib.ColumnBuilder{"
 		for i,column := range *column_args{
 			main_body += column.Go_code_string()
 			if i < (len(*column_args)-1){
@@ -185,13 +194,26 @@ func create_file_migration(file_path string){
 		}
 		main_body += "}\n"
 	}
-	
-	_,err = w.WriteString("package main \n\nimport("+imports+")\n\nfunc main(){"+main_body+"}")
+	line := "package main \n\nimport("+imports+")\n\nfunc main(){"+main_body
+	line += "\n\tlib."+ option +"(" + "\"" +customeTable + "\"" + "," + columnBuilderName +")"
+	line += "\n}"
+
+	_,err = w.WriteString(line)
 	if err != nil{
 		log.Fatal(err)
 	}
 	f.Sync()
 	w.Flush()
+}
+
+func GetOption(option string) string{
+	switch option {
+	case "create":
+		return "CreateTable"
+	case "add_column":
+		return "AddColum"
+	}
+	return ""
 }
 
 func execute_migration(file os.FileInfo,file_path string) bool{
@@ -223,7 +245,7 @@ func main() {
 	kingpin.Parse()
 	m := Migrin{}
 	if *p{
-		connector.SetEnv("production")	
+		connector.SetEnv("production")
 	}else{
 		connector.SetEnv("development")
 	}

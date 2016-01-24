@@ -4,7 +4,6 @@ import(
 	"github.com/gophergala2016/linq/connector"
 	"strconv"
 	"fmt"
-	"../connector"
 )
 
 func get_default_length(data_type string) int{
@@ -49,7 +48,7 @@ func (this ColumnBuilder) primary_key_get() string{
 func (this ColumnBuilder) data_type_get() string{
 	if this.data_type != "" && this.data_type != "varchar"{
 		return " "+this.data_type
-	}else if(this.data_type == "varchar" || this.data_type == "nvarchar"){
+	}else if(this.data_type == "varchar" || this.data_type == "nvarchar"){
 		return " "+this.data_type+"("+this.length_get()+")"
 	}
 	return " varchar("+this.length_get()+") "
@@ -106,7 +105,7 @@ func AddColum(table string, this ColumnBuilder){
 	query := "ALTER TABLE "+table+" ADD COLUMN "+ this.name + " " + this.data_type + ""
 	if(contains(acceptValues, this.data_type)){
 		if(this.length <= 0){
-			 this.length = 255cn
+			 this.length = 255
 		}
 		query += "(" + 	strconv.Itoa(this.length)  + ")"
 	}

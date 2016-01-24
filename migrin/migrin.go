@@ -7,7 +7,7 @@ import(
 	"os"
 	"log"
 	"bufio"
-	"./connector"
+	"../connector"
 )
 
 var (

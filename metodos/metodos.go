@@ -1,7 +1,7 @@
 package lib
 
 import(
-	"github.com/gophergala2016/linq/"
+	"github.com/gophergala2016/linq/connector"
 	"strconv"
 	"fmt"
 	"../connector"

@@ -1,0 +1,34 @@
+CREATE TABLE Example(
+	id int(6) unsigned NOT NULL AUTO_INCREMENT PRIMARY KEY,
+	firstname varchar(30) NOT NULL  ,
+	lastname varchar(30) NOT NULL  ,
+	email varchar(50)   ,
+	reg_date timestamp NOT NULL ON UPDATE CURRENT_TIMESTAMP 
+)
+CREATE TABLE MyGuests(
+	id int(6) unsigned NOT NULL AUTO_INCREMENT PRIMARY KEY,
+	firstname varchar(30) NOT NULL  ,
+	lastname varchar(30) NOT NULL  ,
+	email varchar(50)   ,
+	reg_date timestamp NOT NULL ON UPDATE CURRENT_TIMESTAMP 
+)
+CREATE TABLE audits(
+	name varchar(10)   ,
+	email varchar(250) NOT NULL  ,
+	go varchar(45)   
+)
+CREATE TABLE comida(
+	nombre varchar(10)   ,
+	precio int(11)   ,
+	IdComida int(11)   
+)
+CREATE TABLE migrations(
+	id int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+	migration_id varchar(11) NOT NULL  ,
+	status int(11)   
+)
+CREATE TABLE restaurantes(
+	nombre varchar(255)   ,
+	lugar varchar(255) NOT NULL  ,
+	IdRestaurante int(11)   
+)

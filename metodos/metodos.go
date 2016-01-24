@@ -8,6 +8,7 @@ import(
 	"../connector/"
 	"log"
 	"os"
+	"strings"
 )
 
 func get_default_length(data_type string) int{
@@ -169,8 +170,17 @@ func main() {
 	GenerateShema()
 }
 
+func ExistFolder(folderName string) bool {
+    _, err := os.Stat(folderName)
+    return !os.IsNotExist(err)
+}
+
 func GenerateShema(){
-	file, _ :=  os.Create("./database/shema.yield")
+	filePath := "./database/shema.yml"
+	if ExistFolder(filePath){
+		os.Remove(filePath)
+	}
+	file, _ :=  os.Create(filePath)
 
 	rows := connector.GetQuery("SHOW TABLES")
 	for rows.Next(){
@@ -179,19 +189,20 @@ func GenerateShema(){
 		if err != nil{
 			log.Fatal(err)
 		}
-		queryColumns := GetValuesForTable(table)
-		queryTable := "CREATE TABLE " + table + "(\n"
-		queryTable += queryColumns + ")\n"
+		finalQuery :="CREATE TABLE " + table + "(\n"
+		columnQuery := GetValuesForTable(table)
+		finalQuery += columnQuery
+		finalQuery += "\n)\n"
 
-		file.WriteString(queryTable)
+		file.WriteString(finalQuery)
 	}
 }
 
 func GetValuesForTable(table string) string {
 	var result string
-
 	query := "SHOW COLUMNS FROM "+ table
 	rows := connector.GetQuery(query)
+
 	for rows.Next(){
 		var field string
 		var data_type string
@@ -204,14 +215,16 @@ func GetValuesForTable(table string) string {
 		if err != nil{
 			log.Fatal(err)
 		}
-		result += GetFormat(field, data_type, null, key, extra)
-	}
-	return result
-}
 
-func GetFormat(field string, data_type string, null string, key string, extra string)string{
-	var valueNull string
-	var valueKey string
+		query := "\t" + GetFormatLine(field, data_type, null, key, extra) + "-"
+		result += query
+	}
+	return SetFinalFormat(result)
+}
+func GetFormatLine(field string, data_type string, null string, key string, extra string)string{
+	valueNull := ""
+	valueKey := ""
+	valueExtra := strings.ToUpper(extra)
 
 	if key == "PRI"{
 		valueKey = "PRIMARY KEY"
@@ -220,5 +233,20 @@ func GetFormat(field string, data_type string, null string, key string, extra st
 	if null == "NO"{
 		valueNull = "NOT NULL"
 	}
-	return fmt.Sprintf("\t%s %s %s %s %s,\n", field, data_type, valueNull, extra,valueKey)
+	return fmt.Sprintf("%s %s %s %s %s", field, data_type, valueNull, valueExtra, valueKey)
+}
+
+func SetFinalFormat(querySentence string)string{
+	var finalString string
+	splitLine := strings.Split(querySentence, "-")
+	length := cap(splitLine) - 1
+
+	for i := 0;  i < length  ; i++{
+		value := splitLine[i]
+		if(i != length - 1){
+				value = value + "," + "\n"
+		}
+		finalString+= value
+	}
+	return finalString
 }

@@ -12,6 +12,7 @@ import(
 	"io/ioutil"
 	"strings"
 	"bytes"
+	"strconv"
 )
 
 var (
@@ -34,6 +35,7 @@ func (this Migrin) new() {
 		t := time.Now()
 		timestamp := t.Format("20060102150405")
 		this.create_file(timestamp,*option)
+		this.create_down_file(timestamp,*option)
 	}
 }
 
@@ -54,7 +56,7 @@ func (this Migrin) create_file(timestamp,filename string) {
 		log.Fatal(err)
 	}
 	w := bufio.NewWriter(f)
-	_,err = w.WriteString("package main \n\nimport(\n\t 'github.com/gophergala2016/linq/lib' \n)\n\nfunc main(){}")
+	_,err = w.WriteString("package main \n\nimport(\n\t\"github.com/gophergala2016/linq/lib\"\n)\n\nfunc main(){}")
 
 	if err != nil{
 		log.Fatal(err)
@@ -64,6 +66,25 @@ func (this Migrin) create_file(timestamp,filename string) {
 	w.Flush()
 
 	this.save_migration_in_db(timestamp)
+}
+
+func (this Migrin) create_down_file(timestamp,filename string) {
+	folder := initFolderNameMigration+"/downs"
+	if !existFolder(folder){
+    os.Mkdir(folder,0777)
+ 	}
+	f,err := os.Create(folder+"/"+timestamp+"_"+filename+".go")
+	defer f.Close()
+	if err != nil{
+		log.Fatal(err)
+	}
+	w := bufio.NewWriter(f)
+	_,err = w.WriteString("package main \n\nimport(\n\t\"github.com/gophergala2016/linq/lib\" \n)\n\nfunc main(){}")
+	if err != nil{
+		log.Fatal(err)
+	}
+	f.Sync()
+	w.Flush()
 }
 
 func (this Migrin) init(){
@@ -98,19 +119,34 @@ func (this Migrin) up() {
 		if err != nil{
 			log.Fatal(err)
 		}
-		execute_migration(timestamp)
+		if execute_migration(timestamp,"./database/migrations/"){
+			fmt.Println("Migration "+timestamp+" was executed")
+			connector.Query("UPDATE migrations SET status = 1 WHERE id = "+strconv.Itoa(id))
+		}
 	}
 }
 
 func (this Migrin) down() {
-	connector.Run()
+	rows := connector.GetQuery("SELECT id,migration_id FROM migrations WHERE status = 1 ORDER BY id DESC LIMIT 1 ")
+	for rows.Next(){
+		var id int
+		var timestamp string 
+		err := rows.Scan(&id,&timestamp)
+		if err != nil{
+			log.Fatal(err)
+		}
+		if execute_migration(timestamp,"./database/migrations/downs/"){
+			fmt.Println("Migration "+timestamp+" was reversed")
+			connector.Query("UPDATE migrations SET status = 0 WHERE id = "+strconv.Itoa(id))
+		}
+	}
 }
 
-func execute_migration(timestamp string){
+func execute_migration(timestamp,file_path string) bool{
 	fmt.Println(timestamp)
 	file := find_file(timestamp)
 	if file != nil{
-		cmd := exec.Command("go", "run","./database/migrations/"+file.Name())
+		cmd := exec.Command("go", "run",file_path+file.Name())
 		var out bytes.Buffer
 		var stderr bytes.Buffer
 		cmd.Stdout = &out
@@ -118,11 +154,12 @@ func execute_migration(timestamp string){
 		err := cmd.Run()
 		if err != nil {
 		    fmt.Println(fmt.Sprint(err) + ": " + stderr.String())
-		    return
+		    return false
 		}else{
-			fmt.Println("Migration "+timestamp+" was executed")
+			return true
 		}
 	}
+	return false
 }
 
 func find_file(timestamp string) os.FileInfo{

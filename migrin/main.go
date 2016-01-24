@@ -5,9 +5,12 @@ import(
 	"gopkg.in/alecthomas/kingpin.v2"
 	"time"
 	"os"
+	"os/exec"
 	"log"
 	"bufio"
 	"github.com/gophergala2016/linq/connector"
+	"io/ioutil"
+	"strings"
 )
 
 var (
@@ -84,6 +87,42 @@ func (this Migrin) save_migration_in_db(timestamp string){
 func (this Migrin) create_migrations_table() {
 	connector.Run()
 }
+
+func (this Migrin) up() {
+	rows := connector.GetQuery("SELECT * FROM migrations WHERE status = 0")
+	for rows.next {
+		var id int
+		var timestamp string 
+		err := rows.Scan(&id,&timestamp)
+		execute_migration(timestamp)
+	}
+}
+
+func (this Migrin) down() {
+	connector.Run()
+}
+
+func execute_migration(timestamp string){
+	file := find_file(timestamp)
+	if file != nil{
+		out,err := exec.Command("go run /database/migrations/"+file.Name()).Output()
+		if err != nil{
+			log.Fatal(err)
+		}
+	}
+}
+
+func find_file(timestamp string) os.FileInfo{
+	files, _ := ioutil.ReadDir("./")
+  for _, f := range files {
+		fmt.Println(f.Name())
+		if strings.Contains(f.Name(),timestamp) {
+			return f
+		}
+  }
+  return nil
+}
+
 func main() {
 	kingpin.Parse()
 	m := Migrin{}
@@ -92,5 +131,9 @@ func main() {
 			m.new()
 		case "init":
 			m.init()
+		case "up":
+			m.up()
+		case "down":
+			m.down()
 	}
 }

@@ -61,6 +61,15 @@ func Query(query string){
 	}
 }
 
+func GetQuery(query string) string{
+	db := connect_db()
+	rows,err := db.Exec(query)
+	if err != nil{
+		log.Fatal(err)
+	}	
+	return rows
+}
+
 func Initialize(){
 	connector = "mysql"
 	setValuesConfig()

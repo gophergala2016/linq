@@ -2,9 +2,12 @@
 package main
 
 import(
-	"github.com/gophergala2016/linq/connector"
+	//"github.com/gophergala2016/linq/connector"
 	"strconv"
 	"fmt"
+	"../connector/"
+	"log"
+	"os"
 )
 
 func get_default_length(data_type string) int{
@@ -136,10 +139,6 @@ func RemoveIndex(table,index_name string){
 	connector.Query(query)
 }
 
-func main() {
-
-}
-
 func AddForeignKey(col1 ColumnBuilder, col2 ColumnBuilder ){
 	query := "ALTER TABLE " + col1.table + " ADD FOREIGN KEY (" + col1.foreignKey + ") "
 	query += "REFERENCES " + col2.table +  "(" +  col2.foreignKey  + ")"
@@ -164,4 +163,62 @@ func contains(s []string, e string) bool {
         }
     }
     return false
+}
+
+func main() {
+	GenerateShema()
+}
+
+func GenerateShema(){
+	file, _ :=  os.Create("./database/shema.yield")
+
+	rows := connector.GetQuery("SHOW TABLES")
+	for rows.Next(){
+		var table string
+		err := rows.Scan(&table)
+		if err != nil{
+			log.Fatal(err)
+		}
+		queryColumns := GetValuesForTable(table)
+		queryTable := "CREATE TABLE " + table + "(\n"
+		queryTable += queryColumns + ")\n"
+
+		file.WriteString(queryTable)
+	}
+}
+
+func GetValuesForTable(table string) string {
+	var result string
+
+	query := "SHOW COLUMNS FROM "+ table
+	rows := connector.GetQuery(query)
+	for rows.Next(){
+		var field string
+		var data_type string
+		var null string
+		var key string
+		var data_default *string //Regresa null
+		var extra string
+
+		err := rows.Scan(&field, &data_type, &null, &key, &data_default, &extra)
+		if err != nil{
+			log.Fatal(err)
+		}
+		result += GetFormat(field, data_type, null, key, extra)
+	}
+	return result
+}
+
+func GetFormat(field string, data_type string, null string, key string, extra string)string{
+	var valueNull string
+	var valueKey string
+
+	if key == "PRI"{
+		valueKey = "PRIMARY KEY"
+	}
+
+	if null == "NO"{
+		valueNull = "NOT NULL"
+	}
+	return fmt.Sprintf("\t%s %s %s %s %s,\n", field, data_type, valueNull, extra,valueKey)
 }

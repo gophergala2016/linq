@@ -89,7 +89,8 @@ func setValuesConfig(){
 				database = splitLine[1]
 		}
 	}
-	format = getFormat(username, password, database) //Global variable
+	format = getFormat(username, password, database)
+
 	if err := scanner.Err(); err != nil {
 		log.Fatal(scanner.Err())
 	}

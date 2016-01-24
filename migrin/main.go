@@ -7,7 +7,7 @@ import(
 	"os"
 	"log"
 	"bufio"
-	"github.com/gophergala/linq/migrin"
+	"github.com/gophergala/linq/"
 )
 
 var (

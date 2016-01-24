@@ -8,7 +8,7 @@ import(
 	"os/exec"
 	"log"
 	"bufio"
-	"github.com/gophergala2016/linq/connector"
+	"../connector"
 	"io/ioutil"
 	"strings"
 	"bytes"

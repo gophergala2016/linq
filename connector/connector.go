@@ -4,27 +4,34 @@ import(
 	"database/sql"
 	"log"
 	"fmt"
-	"bufio"
-	"strings"
-	"os"
+	"io/ioutil"
+	"gopkg.in/yaml.v2"
 )
 import _ "github.com/go-sql-driver/mysql"
 
-const table_name = "migrations"
+type Config struct{
+	Development Environment
+	Production Environment
+}
 
-var (
-	username string
-	password string
-	database string
-	format string
-	connector string
-)
-const pathConfig = "database/config.yml"
+type Environment struct{
+	Username string
+	Password string
+	Database string
+	Port string
+}
+
+const table_name = "migrations"
+const pathConfig = "./database/config.yml"
+
+var config Config
+var format,connector string
+
 
 func connect_db() *sql.DB{
 	// Change to config
 	Initialize()
-	db,err := sql.Open(connector,format)
+	db,err := sql.Open(connector,getFormat())
 
 	if(err != nil){
 		log.Fatal(err)
@@ -76,35 +83,17 @@ func Initialize(){
 }
 
 func setValuesConfig(){
-	inputFile, err := os.Open(pathConfig)
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
-
-	defer inputFile.Close()
-	scanner := bufio.NewScanner(inputFile)
-
-	for scanner.Scan() {
-		line := scanner.Text()
-		splitLine := strings.Split(line, ":")
-
-		switch splitLine[0]{
-			case "username":
-				username = splitLine[1]
-			case "password":
-				password = splitLine[1]
-			case "database":
-				database = splitLine[1]
-		}
-	}
-	format = getFormat(username, password, database)
-
-	if err := scanner.Err(); err != nil {
-		log.Fatal(scanner.Err())
-	}
+  source, err := ioutil.ReadFile(pathConfig)
+  if err != nil{
+  	log.Fatal(err)
+  }
+  err = yaml.Unmarshal(source, &config)
+  if err != nil{
+  	log.Fatal(err)
+  }
 }
 
-func getFormat(username string, password string, database string)string{
-	return fmt.Sprintf("%s:%s@/%s", username, password, database)
+func getFormat()string{
+	fmt.Println(config)
+	return fmt.Sprintf("%s:%s@/%s", config.Development.Username, config.Development.Password, config.Development.Database)
 }

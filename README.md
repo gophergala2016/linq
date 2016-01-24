@@ -61,7 +61,53 @@ Example
 		"github.com/gophergala2016/linq/lib"
 	)
 	func main(){
-		lib.DropTable("courses"})	
+		lib.DropTable("courses")	
+	}
+```
+
+###AddColumn(table_name,ColumnBuilder{})
+
+Adds a column to an already created table
+
+Example
+```go
+	package main 
+	import(
+		"github.com/gophergala2016/linq/lib"
+	)
+	func main(){
+		lib.AddColumn("courses",ColumnBuilder{Name:'status',Data_type:'int'})	
+	}
+```
+
+###RemoveColumn(table_name,column_name)
+
+Removes a column from the specified table
+
+Example
+```go
+	package main 
+	import(
+		"github.com/gophergala2016/linq/lib"
+	)
+	func main(){
+		lib.RemoveColumn("courses","status")	
+	}
+```
+
+###ChangeColumn(table_name,ColumnBuilder{})
+
+Changes the column structure of an existing column from the specified table, the column name is obtained from the ColumBuilder struct, if you want to change the name of the column you need to fill the new_name attribute from the ColumnBuilder struct
+
+Example
+```go
+	package main 
+	import(
+		"github.com/gophergala2016/linq/lib"
+	)
+	func main(){
+		//Changes the column name status to state
+		lib.ChangeColumn("courses",ColumnBuilder{Name:"status",New_name:"state"})	
 	}
 ```
 

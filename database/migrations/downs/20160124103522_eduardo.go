@@ -11,5 +11,5 @@ func main(){
 
 	column:= []lib.ColumnBuilder{{Name:"email",Data_type:"nvarchar{255}"}}
 
-	lib.CreateTable("table,column)
+	lib.CreateTable("table",column)
 }

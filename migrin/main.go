@@ -170,12 +170,16 @@ func migration_executed(timestamp string) bool{
 
 func create_file_migration(file_path string){
 	customeTable := *table
+	customeMethod := *method
 
 	f,err := os.Create(file_path)
 	defer f.Close()
 	if err != nil{
 		log.Fatal(err)
 	}
+
+	option := GetOption(customeMethod)
+
 	columnBuilderName := "column"
 	w := bufio.NewWriter(f)
 	imports := "\n\t\"../../lib\"\n\t \"os\"\n"
@@ -191,9 +195,8 @@ func create_file_migration(file_path string){
 		main_body += "}\n"
 	}
 	line := "package main \n\nimport("+imports+")\n\nfunc main(){"+main_body
-	line += "\n\tlib.CreateTable(" + "\"" +customeTable + "\"" + "," + columnBuilderName +")"
+	line += "\n\tlib."+ option +"(" + "\"" +customeTable + "\"" + "," + columnBuilderName +")"
 	line += "\n}"
-
 
 	_,err = w.WriteString(line)
 	if err != nil{
@@ -201,6 +204,16 @@ func create_file_migration(file_path string){
 	}
 	f.Sync()
 	w.Flush()
+}
+
+func GetOption(option string) string{
+	switch option {
+	case "create":
+		return "CreateTable"
+	case "add_column":
+		return "AddColum"
+	}
+	return ""
 }
 
 func execute_migration(file os.FileInfo,file_path string) bool{

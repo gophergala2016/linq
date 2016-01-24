@@ -9,8 +9,7 @@ func main(){
 	//Write here your migration sentences. Next line is necessary for configuration
 	lib.Options(os.Args)
 
-	:= []lib.ColumnBuilder{{Name:"email",Data_type:"nvarchar{255}"}}
+	column:= []lib.ColumnBuilder{{Name:"email",Data_type:"nvarchar{255}"}}
 
-	lib.CreateTable("table
-)
+	lib.AddColum("table",column)
 }

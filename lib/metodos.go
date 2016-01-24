@@ -54,7 +54,7 @@ func (this ColumnBuilder) data_type_get() string{
 
 func (this ColumnBuilder) length_get() string{
 	var str string
-	if this.length == 0{ 
+	if this.length == 0{
 		str = strconv.Itoa(get_default_length(this.data_type))
 		return str
 	}
@@ -104,7 +104,19 @@ func ChangeColumn(table string,column ColumnBuilder){
 		modifier = "MODIFY"
 	}
 	query := "ALTER TABLE "+table+" "+ modifier +" "+ column.creation_string()
-	
+
+	connector.Query(query)
+}
+
+func AddColum(table string, this ColumnBuilder){
+	acceptValues := []string {"nvarchar","varchar"}
+	query := "ALTER TABLE "+table+" ADD COLUMN "+ this.name + " " + this.data_type + ""
+	if(contains(acceptValues, this.data_type)){
+		if(this.length <= 0){
+			 this.length = 255cn
+		}
+		query += "(" + 	strconv.Itoa(this.length)  + ")"
+	}
 	connector.Query(query)
 }
 
@@ -116,10 +128,21 @@ func AddIndex(table,index_name,column string) {
 func RemoveIndex(table,index_name string){
 	query := "DROP INDEX "+index_name+" ON "+ table
 	fmt.Println(query)
-	connector.Query(query)	
+	connector.Query(query)
+}
+
+func DropTable(table string){
+	query := "DROP TABLE " + table
+	connector.Query(query)
 }
 
 
-
-
-
+/*Region Internal*/
+func contains(s []string, e string) bool {
+    for _, a := range s {
+        if a == e {
+            return true
+        }
+    }
+    return false
+}

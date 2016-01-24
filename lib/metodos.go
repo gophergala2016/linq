@@ -24,6 +24,8 @@ type ColumnBuilder struct{
 	auto_increment bool
 	default_value string
 	new_name string
+	table string
+	foreignKey string
 }
 
 func (this ColumnBuilder) creation_string() string{
@@ -125,6 +127,17 @@ func AddIndex(table,index_name,column string) {
 	connector.Query(query)
 }
 
+func AddForeignKey(col1 ColumnBuilder, col2 ColumnBuilder ){
+	query := "ALTER " + col1.table + "ADD FOREIGN KEY (" + col1.foreignKey + ")"
+	query += "RERERENCES " + col2.table +  "(" +  col2.foreignKey  + ")"
+	connector.Query(query)
+}
+
+func RemoveForeigKey(this ColumnBuilder){
+	query := "ALTER TABLE" + this.name + "DROP FOREIGN KEY"  + this.foreignKey
+	connector.Query(query)
+}
+
 func RemoveIndex(table,index_name string){
 	query := "DROP INDEX "+index_name+" ON "+ table
 	fmt.Println(query)
@@ -135,7 +148,6 @@ func DropTable(table string){
 	query := "DROP TABLE " + table
 	connector.Query(query)
 }
-
 
 /*Region Internal*/
 func contains(s []string, e string) bool {

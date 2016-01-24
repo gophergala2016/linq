@@ -1,7 +1,8 @@
-package lib
+//package lib
+package main
 
 import(
-	"github.com/gophergala2016/linq/"
+
 	"strconv"
 	"fmt"
 	"../connector"
@@ -49,7 +50,8 @@ func (this ColumnBuilder) primary_key_get() string{
 func (this ColumnBuilder) data_type_get() string{
 	if this.data_type != "" && this.data_type != "varchar"{
 		return " "+this.data_type
-	}else if(this.data_type == "varchar" || this.data_type == "nvarchar"){
+	//}else if(this.data_type == "varchar" || this.data_type == "nvarchar"){
+	}else if(this.data_type == "varchat"){
 		return " "+this.data_type+"("+this.length_get()+")"
 	}
 	return " varchar("+this.length_get()+") "
@@ -83,7 +85,6 @@ func (this ColumnBuilder) new_name_get() string{
 	return " "+this.new_name+" "
 }
 
-
 func CreateTable(table_name string, columns []ColumnBuilder){
 	query := "CREATE TABLE "+table_name+"("
 	for index,column := range columns{
@@ -93,6 +94,7 @@ func CreateTable(table_name string, columns []ColumnBuilder){
 		}
 	}
 	query +=")"
+	fmt.Println("el query es ", query)
 	connector.Query(query)
 }
 
@@ -106,7 +108,7 @@ func AddColum(table string, this ColumnBuilder){
 	query := "ALTER TABLE "+table+" ADD COLUMN "+ this.name + " " + this.data_type + ""
 	if(contains(acceptValues, this.data_type)){
 		if(this.length <= 0){
-			 this.length = 255cn
+			 this.length = 255
 		}
 		query += "(" + 	strconv.Itoa(this.length)  + ")"
 	}
@@ -137,20 +139,17 @@ func RemoveIndex(table,index_name string){
 }
 
 func main() {
-	//columnsComida := []ColumnBuilder{ {name:"nombre",null:true},{name:"precio",data_type:"INT", null:true} }
-	//columnsRestaurantes := []ColumnBuilder{ {name:"nombre",null:true},{name:"lugar",data_type:"nvarchar", null:true}}
-	//CreateTable("comida", columnsComida)
-	//CreateTable("restaurantes", columnsRestaurantes)
+
 }
 
 func AddForeignKey(col1 ColumnBuilder, col2 ColumnBuilder ){
-	query := "ALTER " + col1.table + "ADD FOREIGN KEY (" + col1.foreignKey + ")"
-	query += "RERERENCES " + col2.table +  "(" +  col2.foreignKey  + ")"
+	query := "ALTER TABLE " + col1.table + " ADD FOREIGN KEY (" + col1.foreignKey + ") "
+	query += "REFERENCES " + col2.table +  "(" +  col2.foreignKey  + ")"
 	connector.Query(query)
 }
 
 func RemoveForeigKey(this ColumnBuilder){
-	query := "ALTER TABLE" + this.name + "DROP FOREIGN KEY"  + this.foreignKey
+	query := "ALTER TABLE " + this.table + " DROP FOREIGN KEY "  + this.foreignKey
 	connector.Query(query)
 }
 

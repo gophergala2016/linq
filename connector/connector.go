@@ -62,6 +62,13 @@ func InsertMigration(timestamp string){
 		log.Fatal(err)
 	}
 }
+func RemoveMigration(timestamp string){
+	db := connect_db()
+	_,err := db.Exec("DELETE FROM "+table_name+" WHERE migration_id = '"+timestamp+"'" )
+	if err != nil{
+		log.Fatal(err)
+	}
+}
 
 func Query(query string){
 	db := connect_db()

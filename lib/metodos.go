@@ -1,10 +1,14 @@
 package lib
 
 import(
-	"github.com/gophergala2016/linq/connector"
+	"../connector"
 	"strconv"
 	"fmt"
 )
+
+func init(){
+	connector.SetEnv("development")
+}
 
 func get_default_length(data_type string) int{
 	switch data_type{
@@ -53,6 +57,8 @@ func (this ColumnBuilder) data_type_get() string{
 	}
 	return " varchar("+this.length_get()+") "
 }
+
+
 
 func (this ColumnBuilder) length_get() string{
 	var str string
@@ -110,10 +116,11 @@ func ChangeColumn(table string,column ColumnBuilder){
 	connector.Query(query)
 }
 
+
 func AddColum(table string, this ColumnBuilder){
 	acceptValues := []string {"nvarchar","varchar"}
 	query := "ALTER TABLE "+table+" ADD COLUMN "+ this.Name + " " + this.Data_type + ""
-	if(contains(acceptValues, this.Data_type)){
+	if(Contains(acceptValues, this.Data_type)){
 		if(this.Length <= 0){
 			 this.Length = 255
 		}
@@ -142,6 +149,14 @@ func RemoveIndex(table,index_name string){
 	query := "DROP INDEX "+index_name+" ON "+ table
 	fmt.Println(query)
 	connector.Query(query)
+}
+
+func Options(args []string){
+	if len(args) > 1{
+		if args[1] == "production"{
+			connector.SetEnv("production")
+		}
+	}
 }
 
 func DropTable(table string){

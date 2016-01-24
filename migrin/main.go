@@ -12,7 +12,6 @@ import(
 	"io/ioutil"
 	"strings"
 	"bytes"
-	"strconv"
 )
 
 var (
@@ -23,6 +22,8 @@ var (
 const initFolderName = "./database/"
 const initFileName = "./database/config.yml"
 const initFolderNameMigration = "./database/migrations"
+const initFolderNameMigrationDown = "./database/migrations/downs"
+
 
 type Migrin struct{
 
@@ -50,9 +51,8 @@ func (this Migrin) create_file(timestamp,filename string) {
 	if !existFolder(folder){
     os.Mkdir(folder,0777)
  	}
-	this.create_migrations_table() // Run concurrently
 	create_file_migration(folder+"/"+timestamp+"_"+filename+".go")
-	this.save_migration_in_db(timestamp)
+	
 }
 
 func (this Migrin) create_down_file(timestamp,filename string) {
@@ -81,6 +81,9 @@ func (this Migrin) init(){
 func (this Migrin) save_migration_in_db(timestamp string){
 	connector.InsertMigration(timestamp)
 }
+func (this Migrin) remove_migration_from_db(timestamp string){
+	connector.RemoveMigration(timestamp)
+}
 
 func (this Migrin) create_migrations_table() {
 	waiting_channel := make(chan bool)
@@ -95,35 +98,37 @@ func (this Migrin) create_migrations_table() {
 }
 
 func (this Migrin) up() {
-	rows := connector.GetQuery("SELECT id,migration_id FROM migrations WHERE status = 0")
-	for rows.Next(){
-		var id int
-		var timestamp string 
-		err := rows.Scan(&id,&timestamp)
-		if err != nil{
-			log.Fatal(err)
-		}
-		if execute_migration(timestamp,"./database/migrations/"){
-			fmt.Println("Migration "+timestamp+" was executed")
-			connector.Query("UPDATE migrations SET status = 1 WHERE id = "+strconv.Itoa(id))
-		}
-	}
+	this.create_migrations_table()
+	files, _ := ioutil.ReadDir(initFolderNameMigration)
+  for _, f := range files {
+  	extension := strings.Split(f.Name(),".")
+  	if len(extension) < 1 || extension[len(extension)-1] != "go"{
+  		continue
+  	}
+  	name_components := strings.Split(f.Name(),"_")
+  	if len(name_components) > 0 && !migration_executed(name_components[0]){
+  		execute_migration(f,initFolderNameMigration)
+  		connector.Query("INSERT INTO migrations(migration_id) VALUES('"+name_components[0]+"')")
+  	}
+  }
 }
 
 func (this Migrin) down() {
-	rows := connector.GetQuery("SELECT id,migration_id FROM migrations WHERE status = 1 ORDER BY id DESC LIMIT 1 ")
-	for rows.Next(){
-		var id int
-		var timestamp string 
-		err := rows.Scan(&id,&timestamp)
-		if err != nil{
-			log.Fatal(err)
-		}
-		if execute_migration(timestamp,"./database/migrations/downs/"){
-			fmt.Println("Migration "+timestamp+" was reversed")
-			connector.Query("UPDATE migrations SET status = 0 WHERE id = "+strconv.Itoa(id))
-		}
-	}
+	files, _ := ioutil.ReadDir(initFolderNameMigrationDown)
+  for _, f := range files {
+
+  	name_components := strings.Split(f.Name(),"_")
+  	if len(name_components) > 0 && migration_executed(name_components[0]){
+  		execute_migration(f,initFolderNameMigrationDown)
+  		connector.Query("DELETE FROM migrations WHERE migration_id = '"+name_components[0]+"'")
+  		break
+  	}
+  }
+}
+
+func migration_executed(timestamp string) bool{
+	rows := connector.GetQuery("SELECT migration_id FROM migrations WHERE migration_id = '"+timestamp+"'")
+	return rows.Next()
 }
 
 func create_file_migration(file_path string){
@@ -133,20 +138,19 @@ func create_file_migration(file_path string){
 		log.Fatal(err)
 	}
 	w := bufio.NewWriter(f)
-	_,err = w.WriteString("package main \n\nimport(\n\t\"github.com/gophergala2016/linq/lib\"\n)\n\nfunc main(){\n\t//Write here your migration sentences\n}")
+	imports := "\n\t\"../../lib\"\n\t \"os\"\n"
+	main_body := "\n\t//Write here your migration sentences. Next line is necessary for configuration\n\tlib.Options(os.Args)\n"
+	_,err = w.WriteString("package main \n\nimport("+imports+")\n\nfunc main(){"+main_body+"}")
 	if err != nil{
 		log.Fatal(err)
 	}
 	f.Sync()
 	w.Flush()
-
 }
 
-func execute_migration(timestamp,file_path string) bool{
-	fmt.Println(timestamp)
-	file := find_file(timestamp)
+func execute_migration(file os.FileInfo,file_path string) bool{
 	if file != nil{
-		cmd := exec.Command("go", "run",file_path+file.Name())
+		cmd := exec.Command("go", "run",file_path+"/"+file.Name(),production_arg())
 		var out bytes.Buffer
 		var stderr bytes.Buffer
 		cmd.Stdout = &out
@@ -162,14 +166,11 @@ func execute_migration(timestamp,file_path string) bool{
 	return false
 }
 
-func find_file(timestamp string) os.FileInfo{
-	files, _ := ioutil.ReadDir("./database/migrations")
-  for _, f := range files {
-		if strings.Contains(f.Name(),timestamp) {
-			return f
-		}
-  }
-  return nil
+func production_arg() string{
+	if *p{
+		return "production"
+	}
+	return ""
 }
 
 func main() {

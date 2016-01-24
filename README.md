@@ -35,7 +35,7 @@ This gives you access to the migrin command to execute different actions
 
 The beauty of migrin is that you don't need to write SQL to define what your migration should do, you use a simple API to modify your database
 
-###createTable(<table_name>,[]ColumnBuilder)
+###CreateTable(table_name,[]ColumnBuilder)
 
 Example
 ```go

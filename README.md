@@ -40,6 +40,17 @@ This gives you access to the migrin command to execute different actions
 * Accepts config data for both production and development environments
 * Independent from your project, can be used with other languages projects as long as you have Go installed
 
+##Production
+
+As you may see, there are two environments on config.yml production|development this allows you to separate the credentials on each database, and only run changs on your production DB when explicitly specified.
+
+To run commands in production append the `-production` flag, or it shorthand `-p`, to migrin commands
+
+The following example executes migrations with production credentials
+```
+migrin up -p
+```
+
 ##API
 
 The beauty of migrin is that you don't need to write SQL to define what your migration should do, you use a simple API to modify your database

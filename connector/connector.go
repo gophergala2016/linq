@@ -25,8 +25,11 @@ const table_name = "migrations"
 const pathConfig = "./database/config.yml"
 
 var config Config
-var format,connector string
+var format,connector,env string
 
+func SetEnv(envi string){
+	env = envi
+}
 
 func connect_db() *sql.DB{
 	// Change to config
@@ -94,6 +97,8 @@ func setValuesConfig(){
 }
 
 func getFormat()string{
-	fmt.Println(config)
+	if env == "production"{
+		return fmt.Sprintf("%s:%s@/%s", config.Production.Username, config.Production.Password, config.Production.Database)
+	}
 	return fmt.Sprintf("%s:%s@/%s", config.Development.Username, config.Development.Password, config.Development.Database)
 }

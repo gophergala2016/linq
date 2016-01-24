@@ -18,6 +18,7 @@ import(
 var (
 	action = kingpin.Arg("action","Specify an action to run init/new/up/down").Required().String()
 	option = kingpin.Arg("modifier","Adds extra information to the command, specifies the migration name on new command").String()
+	p = kingpin.Flag("production","Runs command queries on production ").Short('p').Bool()
 )
 const initFolderName = "./database/"
 const initFileName = "./database/config.yml"
@@ -72,9 +73,9 @@ func (this Migrin) init(){
     	log.Fatal(err)
     }
   }
-
 	file, _ :=  os.Create(localPathFile)
-	file.WriteString("path:\nusername:\npassword:\nport:\ndatabase:\n")
+	fields := "\n  username:\n  password:\n  port:\n  database:"
+	file.WriteString("development:"+fields+"\nproduction:"+fields)
 }
 
 func (this Migrin) save_migration_in_db(timestamp string){
@@ -82,7 +83,15 @@ func (this Migrin) save_migration_in_db(timestamp string){
 }
 
 func (this Migrin) create_migrations_table() {
-	connector.Run()
+	waiting_channel := make(chan bool)
+	go func(){
+		connector.Run()
+		waiting_channel <- true	
+	}()
+	b := <-waiting_channel	
+	if !b{
+		fmt.Println("Error creating migrations table")
+	}
 }
 
 func (this Migrin) up() {
@@ -166,6 +175,11 @@ func find_file(timestamp string) os.FileInfo{
 func main() {
 	kingpin.Parse()
 	m := Migrin{}
+	if *p{
+		connector.SetEnv("production")	
+	}else{
+		connector.SetEnv("development")
+	}
 	switch *action{
 		case "new":
 			m.new()

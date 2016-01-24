@@ -39,6 +39,7 @@ This gives you access to the migrin command to execute different actions
 * Creates two files per migration (one to execute the migration, and another to undo it)
 * Accepts config data for both production and development environments
 * Independent from your project, can be used with other languages projects as long as you have Go installed
+* Build migrations from the command line, without touching a file or thinking on SQL
 
 ##Production
 
@@ -50,6 +51,49 @@ The following example executes migrations with production credentials
 ```
 migrin up -p
 ```
+
+##Auto generate migrations
+
+Migrin commands are pretty awesome, you can't even tell it what changes dou you want to make tou your database through the terminal, no need to open migrations or remembering SQL. Here's an example
+
+Given that I want to create a users table with email,password and age fields:
+
+```
+migrin new CreateUsersTable create_table users email:varchar password:varchar age:int
+```
+
+Migrin will generate the following migration:
+
+```go
+package main 
+
+import(
+	"../../lib"
+	 "os"
+)
+
+func main(){
+	lib.Options(os.Args)
+	columns = []lib.ColumnBuilder{{Name:"email",Data_type:"varchar"},{Name:"password",Data_type:"varchar"},{Name:"age",Data_type:"int"}
+	lib.CreateTable("users",columns)
+}
+```
+
+And there you have, your table ready to go... this is the sintax to generate such awesome migrations:
+
+```
+migrin new migration_name command table_name column_name:data_type...
+```
+
+There's no limit on how much columns you can add, every argument after the table_name is considered a new column for the table.
+
+Here are the available commands:
+
+| command       | action                                                |
+|---------------|-------------------------------------------------------|
+| create_table  | To create a new table                                 |
+| add_columns   | Add specified columns to the indicated table          |
+| remove_column | Remove the specified columns from the indicated table |
 
 ##API
 

@@ -50,21 +50,7 @@ func (this Migrin) create_file(timestamp,filename string) {
     os.Mkdir(folder,0777)
  	}
 	this.create_migrations_table() // Run concurrently
-	f,err := os.Create(folder+"/"+timestamp+"_"+filename+".go")
-	defer f.Close()
-	if err != nil{
-		log.Fatal(err)
-	}
-	w := bufio.NewWriter(f)
-	_,err = w.WriteString("package main \n\nimport(\n\t\"github.com/gophergala2016/linq/lib\"\n)\n\nfunc main(){}")
-
-	if err != nil{
-		log.Fatal(err)
-	}
-
-	f.Sync()
-	w.Flush()
-
+	create_file_migration(folder+"/"+timestamp+"_"+filename+".go")
 	this.save_migration_in_db(timestamp)
 }
 
@@ -73,18 +59,7 @@ func (this Migrin) create_down_file(timestamp,filename string) {
 	if !existFolder(folder){
     os.Mkdir(folder,0777)
  	}
-	f,err := os.Create(folder+"/"+timestamp+"_"+filename+".go")
-	defer f.Close()
-	if err != nil{
-		log.Fatal(err)
-	}
-	w := bufio.NewWriter(f)
-	_,err = w.WriteString("package main \n\nimport(\n\t\"github.com/gophergala2016/linq/lib\" \n)\n\nfunc main(){}")
-	if err != nil{
-		log.Fatal(err)
-	}
-	f.Sync()
-	w.Flush()
+ 	create_file_migration(folder+"/"+timestamp+"_"+filename+".go")
 }
 
 func (this Migrin) init(){
@@ -140,6 +115,22 @@ func (this Migrin) down() {
 			connector.Query("UPDATE migrations SET status = 0 WHERE id = "+strconv.Itoa(id))
 		}
 	}
+}
+
+func create_file_migration(file_path string){
+	f,err := os.Create(file_path)
+	defer f.Close()
+	if err != nil{
+		log.Fatal(err)
+	}
+	w := bufio.NewWriter(f)
+	_,err = w.WriteString("package main \n\nimport(\n\t\"github.com/gophergala2016/linq/lib\"\n)\n\nfunc main(){\n\t//Write here your migration sentences\n}")
+	if err != nil{
+		log.Fatal(err)
+	}
+	f.Sync()
+	w.Flush()
+
 }
 
 func execute_migration(timestamp,file_path string) bool{

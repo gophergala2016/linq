@@ -5,6 +5,5 @@ import(
 )
 
 func main(){
-	lib.CreateTable("users",[]lib.ColumnBuilder{{Name:"audits"}})
-	lib.AddColumn("users")	
+	lib.CreateTable("brothers",[]lib.ColumnBuilder{{Name:"audits"}})	
 }

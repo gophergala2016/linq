@@ -4,6 +4,7 @@ import(
 	"github.com/gophergala2016/linq/"
 	"strconv"
 	"fmt"
+	"../connector"
 )
 
 func get_default_length(data_type string) int{
@@ -24,6 +25,8 @@ type ColumnBuilder struct{
 	auto_increment bool
 	default_value string
 	new_name string
+	table string
+	foreignKey string
 }
 
 func (this ColumnBuilder) creation_string() string{
@@ -98,7 +101,6 @@ func RemoveColumn(table,column string){
 	connector.Query(query)
 }
 
-
 func AddColum(table string, this ColumnBuilder){
 	acceptValues := []string {"nvarchar","varchar"}
 	query := "ALTER TABLE "+table+" ADD COLUMN "+ this.name + " " + this.data_type + ""
@@ -134,10 +136,22 @@ func RemoveIndex(table,index_name string){
 	connector.Query(query)
 }
 
-
 func main() {
-	//columns := []ColumnBuilder{{name:"name",null:true},{name:"email",data_type:"varchar"}}
-	RemoveIndex("audits","name_index")
+	//columnsComida := []ColumnBuilder{ {name:"nombre",null:true},{name:"precio",data_type:"INT", null:true} }
+	//columnsRestaurantes := []ColumnBuilder{ {name:"nombre",null:true},{name:"lugar",data_type:"nvarchar", null:true}}
+	//CreateTable("comida", columnsComida)
+	//CreateTable("restaurantes", columnsRestaurantes)
+}
+
+func AddForeignKey(col1 ColumnBuilder, col2 ColumnBuilder ){
+	query := "ALTER " + col1.table + "ADD FOREIGN KEY (" + col1.foreignKey + ")"
+	query += "RERERENCES " + col2.table +  "(" +  col2.foreignKey  + ")"
+	connector.Query(query)
+}
+
+func RemoveForeigKey(this ColumnBuilder){
+	query := "ALTER TABLE" + this.name + "DROP FOREIGN KEY"  + this.foreignKey
+	connector.Query(query)
 }
 
 func DropTable(table string){

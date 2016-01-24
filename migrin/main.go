@@ -8,21 +8,21 @@ import(
 	"os/exec"
 	"log"
 	"bufio"
-	"../connector"
-	"../lib"
+	"github.com/gophergala2016/linq/connector"
+	"github.com/gophergala2016/linq/migrator"
 	"io/ioutil"
 	"strings"
 	"bytes"
 )
 
-type columns []lib.ColumnBuilder
+type columns []migrator.ColumnBuilder
 
 func (this *columns) Set(value string) error{
 	if value == ""{
 		return fmt.Errorf("'%s' is not a valid column name", value)
 	}else{
 		components := strings.Split(value,":")
-		c_b := lib.ColumnBuilder{Name: components[0]}
+		c_b := migrator.ColumnBuilder{Name: components[0]}
 		if len(components) > 1{
 			c_b.Data_type = components[1]
 		}
@@ -40,8 +40,8 @@ func (this *columns) IsCumulative() bool {
   return true
 }
 
-func ColumnList(s kingpin.Settings) (target *[]lib.ColumnBuilder) {
-  target = new([]lib.ColumnBuilder)
+func ColumnList(s kingpin.Settings) (target *[]migrator.ColumnBuilder) {
+  target = new([]migrator.ColumnBuilder)
   s.SetValue((*columns)(target))
   return
 }
@@ -183,9 +183,9 @@ func create_file_migration(file_path string){
 	columnBuilderName := "column"
 	w := bufio.NewWriter(f)
 	imports := "\n\t\"../../lib\"\n\t \"os\"\n"
-	main_body := "\n\t//Write here your migration sentences. Next line is necessary for configuration\n\tlib.Options(os.Args)\n"
+	main_body := "\n\t//Write here your migration sentences. Next line is necessary for configuration\n\tmigrator.Options(os.Args)\n"
 	if len(*column_args) > 0{
-		main_body += "\n\t" + columnBuilderName +":= []lib.ColumnBuilder{"
+		main_body += "\n\t" + columnBuilderName +":= []migrator.ColumnBuilder{"
 		for i,column := range *column_args{
 			main_body += column.Go_code_string()
 			if i < (len(*column_args)-1){
@@ -195,7 +195,7 @@ func create_file_migration(file_path string){
 		main_body += "}\n"
 	}
 	line := "package main \n\nimport("+imports+")\n\nfunc main(){"+main_body
-	line += "\n\tlib."+ option +"(" + "\"" +customeTable + "\"" + "," + columnBuilderName +")"
+	line += "\n\tmigrator."+ option +"(" + "\"" +customeTable + "\"" + "," + columnBuilderName +")"
 	line += "\n}"
 
 	_,err = w.WriteString(line)
@@ -212,6 +212,8 @@ func GetOption(option string) string{
 		return "CreateTable"
 	case "add_column":
 		return "AddColum"
+	case "create_table":
+		return "CreateTable"
 	}
 	return ""
 }

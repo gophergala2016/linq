@@ -1,6 +1,6 @@
 ## Migrin
 
-A migration toolkit writted in Golang that allows you to create the SQL of the migrations using a DSL in Go.
+A migration toolkit writted in Golang and inspired on Rails' ActiveRecord::Migration, that allows you to create migration files to make change on your DB using a DSL.
 
 ## Installation
 
@@ -25,11 +25,11 @@ This gives you access to the migrin command to execute different actions
 	```
 5. Execute your migration
 	```
-		migrate up
+		migrin up
 	```
 6. In case something went wrong, you can reverse your migrations
 	```
-		migrate down
+		migrin down
 	```
 
 ##Features
